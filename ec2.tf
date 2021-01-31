@@ -11,7 +11,7 @@ resource "aws_instance" "example" {
               sudo systemctl enable httpd.service
               sudo echo "<h1> At $(hostname -f) </h1>" > /var/www/html/index.html                   
               EOF
-  tags                 = local.common_tags
+  #tags                 = local.common_tags    # for tags
   key_name             = var.key_name
-  iam_instance_profile = aws_iam_instance_profile.test_profile.id
+  #iam_instance_profile = aws_iam_instance_profile.test_profile.id
 }

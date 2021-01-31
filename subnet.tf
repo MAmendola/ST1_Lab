@@ -36,11 +36,11 @@ resource "aws_subnet" "st_lab_subnet_3" {
     Name = "Private Subnet 1"
   }
 
-  availability_zone = "us-east-1a_4" # AZ-1
+  availability_zone = "us-east-1a" # AZ-1
 
 }
 
-resource "aws_subnet" "st_lab_subnet" {
+resource "aws_subnet" "st_lab_subnet_4" {
   vpc_id     = aws_vpc.st_lab_vpc.id
   cidr_block = "10.0.4.0/24"
 

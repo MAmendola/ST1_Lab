@@ -20,5 +20,6 @@ variable "ec2_tags" {
   type = map
   default  = { 
   Name = "terraform-example"
-  Environment = "dev"
+  Environment = "dev" 
+  }
 }
