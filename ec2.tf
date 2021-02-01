@@ -1,7 +1,7 @@
 resource "aws_instance" "example" {
   ami                    = var.image_id
   instance_type          = var.instance_type
-  vpc_security_group_ids = [security_group.instance_sg.id, security_group.ssh.id]
+  vpc_security_group_ids = [aws_security_group.instance-sg.id, aws_security_group.instance-ssh.id]
 
   user_data            = <<-EOF
               #!/bin/bash

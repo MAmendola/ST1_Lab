@@ -52,6 +52,8 @@ resource "aws_subnet" "st_lab_subnet_4" {
 
 }
 
+# Subnet_Group for AWS_RDS
+
 # resource "aws_db_subnet_group" "default" {
 #   name       = "main"
 #   subnet_ids = [aws_subnet.frontend.id, aws_subnet.backend.id]

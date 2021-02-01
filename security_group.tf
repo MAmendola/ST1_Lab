@@ -1,6 +1,6 @@
-resource "aws_security_group" "instance_sg" {
+resource "aws_security_group" "instance-sg" {
   
-  name = "instance_sg"
+  name = "instance-sg"
  
 ingress {
     from_port   = 80
@@ -17,9 +17,10 @@ egress {
   }
 }
 
-resource "aws_security_group" "instance_ssh" {
-  name = "ssh-instance"
-  tags = local.common_tags
+resource "aws_security_group" "instance-ssh" {
+  name = "instance-ssh"
+
+  
   ingress {
     from_port   = 22
     to_port     = 22
