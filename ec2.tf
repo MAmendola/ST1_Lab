@@ -1,7 +1,13 @@
-resource "aws_instance" "example" {
+resource "aws_instance" "ec2_st1_lab" {
   ami                    = var.image_id
   instance_type          = var.instance_type
-  vpc_security_group_ids = [aws_security_group.instance-sg.id, aws_security_group.instance-ssh.id]
+  
+
+  subnet_id = aws_subnet.st_lab_subnet_3.id #subnet where it will be placed
+
+  associate_public_ip_address = true
+
+  availability_zone = "us-east-1a"
 
   user_data            = <<-EOF
               #!/bin/bash
@@ -15,3 +21,13 @@ resource "aws_instance" "example" {
   key_name             = var.key_name
   #iam_instance_profile = aws_iam_instance_profile.test_profile.id
 }
+
+resource "aws_eip" "bar" {
+  vpc = true
+
+  instance                  = aws_instance.ec2_st1_lab.id
+  
+  depends_on                = [aws_internet_gateway.internet-gw]
+}
+
+
