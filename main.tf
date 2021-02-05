@@ -87,9 +87,26 @@ resource "aws_instance" "ec2_st1_lab" {
   instance_type          = var.instance_type
   
 
-  subnet_id = aws_subnet.st_lab_subnet_3.id #subnet where it will be placed
+  # subnet_id = aws_subnet.st_lab_subnet_3.id #subnet where it will be placed
 
-  associate_public_ip_address = true
+  # security_groups = [aws_security_group.allow_web_nat.id] ---temporary
+
+  
+
+  # network_interface {
+  #   device_index         = 0
+  #   network_interface_id = aws_network_interface.web-server-nic.id
+
+  # }
+
+network_interface {
+    network_interface_id = aws_network_interface.web-server-nic.id
+    device_index         = 0
+  }
+
+
+
+
 
   availability_zone = "us-east-1a"
 
@@ -105,6 +122,105 @@ resource "aws_instance" "ec2_st1_lab" {
   key_name             = var.key_name
   #iam_instance_profile = aws_iam_instance_profile.test_profile.id
 }
+
+
+resource "aws_network_interface" "web-server-nic" {
+  subnet_id       = aws_subnet.st_lab_subnet_3.id
+  private_ips     = ["172.31.3.13"]
+  security_groups = [aws_security_group.allow_web_nat.id]
+}
+
+resource "aws_security_group" "allow_web_nat" {
+  name        = "allow_web_traffic_to_nat"
+  description = "Allow Web inbound traffic"
+  vpc_id      = aws_vpc.st_lab_vpc.id
+
+  ingress {
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    security_groups = ["aws_security_group.allow_web.id"]
+  }
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    security_groups = ["aws_security_group.allow_web.id"]
+  }
+  # ingress {
+  #   description = "SSH"
+  #   from_port   = 22
+  #   to_port     = 22
+  #   protocol    = "tcp"
+  #   cidr_blocks = ["0.0.0.0/0"]
+  # }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "allow_web"
+  }
+}
+
+
+
+
+
+
+
+
+
+#6. Create Security Group to allow port 22,80,443 -----------------------------------------------------------------------------------
+
+
+resource "aws_security_group" "allow_web" {
+  name        = "allow_web_traffic"
+  description = "Allow Web inbound traffic"
+  vpc_id      = aws_vpc.st_lab_vpc.id
+
+  ingress {
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "allow_web"
+  }
+}
+
+
+
 
 # Elastic IP -------------------------------------------------------------------------------------
 
