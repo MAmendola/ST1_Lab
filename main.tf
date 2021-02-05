@@ -55,14 +55,16 @@ resource "aws_subnet" "st_lab_subnet_3" {        # Private Subnets
 
 resource "aws_subnet" "st_lab_subnet_4" {
   vpc_id     = aws_vpc.st_lab_vpc.id
+  
   cidr_block = "172.31.4.0/24"
+  
+  availability_zone = "us-east-1b" # AZ-2
 
   tags = {
     Name = "Private Subnet 2"
   }
   
-  availability_zone = "us-east-1b" # AZ-2
-
+  
 }
 
 # Subnet_Group for AWS_RDS
@@ -106,13 +108,13 @@ resource "aws_instance" "ec2_st1_lab" {
 
 # Elastic IP -------------------------------------------------------------------------------------
 
-resource "aws_eip" "bar" {
-  vpc = true
+# resource "aws_eip" "bar" {
+#   vpc = true
 
-  instance                  = aws_instance.ec2_st1_lab.id
+#   instance                  = aws_instance.ec2_st1_lab.id
   
-  depends_on                = [aws_internet_gateway.internet-gw]
-}
+#   depends_on                = [aws_internet_gateway.internet-gw]
+# }
 
 # Internet Gateway ------------------------------------------------------------------------------
 
@@ -123,3 +125,86 @@ resource "aws_internet_gateway" "internet-gw" {
     Name = "main"
   }
 }
+
+
+# Nat_Gateway ------------------------------------------------------------------------------------
+
+resource "aws_nat_gateway" "nat_gateway" {
+ 
+  allocation_id = aws_eip.eip_nat.id
+  subnet_id     = aws_subnet.st_lab_subnet_1.id
+
+  tags = {
+    Name = "gw NAT"
+  }
+}
+
+
+resource "aws_eip" "eip_nat" {
+  vpc = true
+
+ # instance                  = aws_instance.ec2_st1_lab.id
+  depends_on                = [aws_internet_gateway.internet-gw]
+}
+
+
+
+
+# Route Table Public -------------------------------------------------------------------------------------
+
+resource "aws_route_table" "route_table_1" {
+  vpc_id = aws_vpc.st_lab_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.internet-gw.id
+  }
+
+  # route {
+  #   ipv6_cidr_block        = "::/0"
+  #   egress_only_gateway_id = aws_egress_only_internet_gateway.foo.id
+  # }
+
+  tags = {
+    Name = "main"
+  }
+}
+
+
+resource "aws_route_table_association" "Public_a" {
+  subnet_id      = aws_subnet.st_lab_subnet_1.id
+  route_table_id = aws_route_table.route_table_1.id
+}
+
+
+
+# Route Table Private -------------------------------------------------------------------------------------
+
+
+resource "aws_route_table_association" "Private_a" {   
+  subnet_id      = aws_subnet.st_lab_subnet_3.id
+  route_table_id = aws_route_table.route_table_2.id
+}
+
+
+resource "aws_route_table" "route_table_2" {
+  vpc_id = aws_vpc.st_lab_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat_gateway.id
+  }
+
+  # route {
+  #   ipv6_cidr_block        = "::/0"
+  #   egress_only_gateway_id = aws_egress_only_internet_gateway.foo.id
+  # }
+
+  tags = {
+    Name = "main"
+  }
+}
+
+
+
+

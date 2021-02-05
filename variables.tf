@@ -7,19 +7,19 @@ variable "image_id" {
 variable "instance_type" {
   type        = string
   description = "This is my instanc type"
-  default = "t2.micro"
+  default     = "t2.micro"
 }
 
 variable "key_name" {
   type        = string
   description = "Name of ssh key"
-  default = "my-key"
+  default     = "my-key"
 }
 
 variable "ec2_tags" {
-  type = map
-  default  = { 
-  Name = "terraform-example"
-  Environment = "dev" 
+  type = map(any)
+  default = {
+    Name        = "terraform-example"
+    Environment = "dev"
   }
 }
